@@ -18,7 +18,6 @@
 package com.google.android.libraries.remixer.ui.view;
 
 import android.content.Context;
-import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
@@ -26,21 +25,19 @@ import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+
 import com.google.android.libraries.remixer.Remixer;
-import com.google.android.libraries.remixer.storage.FirebaseRemoteControllerSyncer;
 import com.google.android.libraries.remixer.ui.R;
 
 /**
  * This drawer is displayed only when Remixer is using a {@link FirebaseRemoteControllerSyncer}
  * as a Synchronization Mechanism
  */
-public class RemixerShareDrawer
-    extends LinearLayout implements FirebaseRemoteControllerSyncer.SharingStatusListener {
+public class RemixerShareDrawer extends LinearLayout {
 
   private Button shareLinkButton;
   private Switch sharingSwitch;
   private TextView sharingDetailText;
-  private FirebaseRemoteControllerSyncer syncer;
 
   public RemixerShareDrawer(Context context) {
     super(context);
@@ -57,38 +54,6 @@ public class RemixerShareDrawer
   public void init() {
     sharingDetailText = (TextView) findViewById(R.id.sharingDetailText);
     sharingSwitch = (Switch) findViewById(R.id.sharingSwitch);
-    shareLinkButton = (Button)findViewById(R.id.shareLinkButton);
-    syncer = ((FirebaseRemoteControllerSyncer) Remixer.getInstance().getSynchronizationMechanism());
-    syncer.addSharingStatusListener(this);
-    sharingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-      @Override
-      public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-        if (checked) {
-          syncer.startSharing();
-        } else {
-          syncer.stopSharing();
-        }
-      }
-    });
-    shareLinkButton.setOnClickListener(new OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        getContext().startActivity(syncer.getShareLinkIntent());
-      }
-    });
-  }
-
-  @Override
-  public void updateSharingStatus(boolean sharing) {
-    sharingSwitch.setChecked(sharing);
-    if (sharing) {
-      sharingSwitch.setText(R.string.sharingStatusOnText);
-      sharingDetailText.setVisibility(View.VISIBLE);
-      shareLinkButton.setVisibility(View.VISIBLE);
-    } else {
-      sharingSwitch.setText(R.string.sharingStatusOffText);
-      sharingDetailText.setVisibility(View.GONE);
-      shareLinkButton.setVisibility(View.GONE);
-    }
+    shareLinkButton = (Button) findViewById(R.id.shareLinkButton);
   }
 }

@@ -18,6 +18,8 @@ package com.google.android.libraries.remixer.storage;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+
+import com.google.android.libraries.remixer.Remixer;
 import com.google.android.libraries.remixer.Variable;
 import com.google.android.libraries.remixer.serialization.GsonProvider;
 import com.google.android.libraries.remixer.serialization.StoredVariable;

@@ -21,12 +21,15 @@ import com.google.android.libraries.remixer.ItemListVariable;
 import com.google.android.libraries.remixer.annotation.ColorListVariableMethod;
 import com.google.android.libraries.remixer.annotation.NumberListVariableMethod;
 import com.google.android.libraries.remixer.annotation.StringListVariableMethod;
+
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
+
 import java.util.ArrayList;
 import java.util.Locale;
+
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 
@@ -83,6 +86,7 @@ class ItemListVariableMethodAnnotation<T> extends MethodAnnotation {
         DataType.STRING,
         ParameterizedTypeName.get(
             ClassName.get(ItemListVariable.Builder.class), ClassName.get(String.class)),
+        "",
         annotation.key(),
         annotation.title(),
         annotation.layoutId(),
@@ -106,6 +110,7 @@ class ItemListVariableMethodAnnotation<T> extends MethodAnnotation {
         DataType.COLOR,
         ParameterizedTypeName.get(
             ClassName.get(ItemListVariable.Builder.class), ClassName.get(Integer.class)),
+        annotation.global(),
         annotation.key(),
         annotation.title(),
         annotation.layoutId(),
@@ -129,6 +134,7 @@ class ItemListVariableMethodAnnotation<T> extends MethodAnnotation {
         DataType.NUMBER,
         ParameterizedTypeName.get(
             ClassName.get(ItemListVariable.Builder.class), ClassName.get(Float.class)),
+        "",
         annotation.key(),
         annotation.title(),
         annotation.layoutId(),
@@ -141,19 +147,20 @@ class ItemListVariableMethodAnnotation<T> extends MethodAnnotation {
    * Constructs an ItemListVariableMethodAnnotation and makes sure that the constraints for these
    * annotations are met.
    *
-   * <p>If the default is unset and the zero value (0 for numbers, empty string for Strings) is not
-   * amongst the values this variable is limited to then it falls back to the first value in the
-   * list.
+   * <p>If the default is unset and the zero value (0 for numbers, empty string for Strings) is
+   * not amongst the values this variable is limited to then it falls back to the first value in
+   * the list.
    *
-   * @throws RemixerAnnotationException if the constraints are not met:
-   *     - The list of limited to values is empty.
-   *     - The default is explicitly set to an unknown value.
+   * @throws RemixerAnnotationException if the constraints are not met: - The list of limited to
+   *                                    values is empty. - The default is explicitly set to an
+   *                                    unknown value.
    */
   private ItemListVariableMethodAnnotation(
       TypeElement sourceClass,
       ExecutableElement sourceMethod,
       DataType dataType,
       TypeName builderTypeName,
+      String global,
       String key,
       String title,
       int layoutId,
@@ -161,7 +168,7 @@ class ItemListVariableMethodAnnotation<T> extends MethodAnnotation {
       T initialValue,
       T zeroValue)
       throws RemixerAnnotationException {
-    super(sourceClass, sourceMethod, dataType, builderTypeName, key, title, layoutId);
+    super(sourceClass, sourceMethod, dataType, builderTypeName, global, key, title, layoutId);
     this.limitedToValues = limitedToValues;
     if (limitedToValues.length == 0) {
       throw new RemixerAnnotationException(

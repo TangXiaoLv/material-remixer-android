@@ -15,6 +15,7 @@
  */
 
 apply plugin: 'com.android.application'
+apply plugin: 'android-apt'
 
 android {
   compileSdkVersion rootProject.ext.compileSdkVersion
@@ -51,7 +52,5 @@ dependencies {
   compile "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
   compile project(':remixer')
   provided project(':remixer_annotation')
+  compile project(':remixer_ui')
 }
-
-// Depend on gms google services for Firebase Support, keep at the bottom.
-apply plugin: 'com.google.gms.google-services'

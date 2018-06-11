@@ -16,8 +16,13 @@
 
 package com.google.android.libraries.remixer;
 
+import com.google.android.libraries.remixer.settings.GlobalSetting;
 import com.google.android.libraries.remixer.sync.LocalValueSyncing;
 import com.google.android.libraries.remixer.sync.SynchronizationMechanism;
+import com.google.android.libraries.remixer.sync.SynchronizationMechanismAdapt;
+import com.google.gson.Gson;
+
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -46,6 +51,11 @@ public class Remixer {
    * Datatypes keyed by their serializable name.
    */
   private static Map<String, DataType> registeredDataTypes = new HashMap<>();
+
+  /**
+   * Global setting
+   */
+  private static GlobalSetting globalSetting;
 
   /**
    * This is a map of Remixer keys to a list of variables that have that key.
@@ -85,7 +95,7 @@ public class Remixer {
   public static void registerDataType(DataType dataType) {
     if (registeredDataTypes.containsKey(dataType.getName())) {
       throw new IllegalStateException("Adding a data type that has already been added, name: "
-          + dataType.getName() );
+          + dataType.getName());
     }
     registeredDataTypes.put(dataType.getName(), dataType);
   }
@@ -96,6 +106,10 @@ public class Remixer {
 
   public static Collection<DataType> getRegisteredDataTypes() {
     return registeredDataTypes.values();
+  }
+
+  public static GlobalSetting getGlobalSetting() {
+    return globalSetting;
   }
 
   /**
@@ -145,11 +159,13 @@ public class Remixer {
    * removed until equivalent ones from the same context class are added to replace them. This
    * guarantees that no incompatible items for the same key are ever accepted.
    *
-   * @param variable The variable to be added. It must have a context object otherwise it
-   *     will never be displayed, and thus not be editable.
+   * @param variable The variable to be added. It must have a context object otherwise it will
+   *                 never be displayed, and thus not be editable.
    * @throws IncompatibleRemixerItemsWithSameKeyException Other items with the same key have been
-   *     added other contexts with incompatible types.
-   * @throws DuplicateKeyException Another item with the same key was added for the same context.
+   *                                                      added other contexts with incompatible
+   *                                                      types.
+   * @throws DuplicateKeyException                        Another item with the same key was added
+   *                                                      for the same context.
    */
   @SuppressWarnings("unchecked")
   public void addItem(Variable variable) {
@@ -157,8 +173,8 @@ public class Remixer {
       throw new IllegalStateException(String.format(
           Locale.getDefault(),
           "There is no registered data type that matches %s. Are you sure you ran "
-          + "RemixerInitialization.initRemixer in your application class? See the Remixer README "
-          + "for detailed instructions. If this is a custom data type you have to manually add it.",
+              + "RemixerInitialization.initRemixer in your application class? See the Remixer README "
+              + "for detailed instructions. If this is a custom data type you have to manually add it.",
           variable.getDataType().getName()));
     }
     List<Variable> listForKey = getOrCreateVariableList(variable.getKey(), keyMap);
@@ -194,6 +210,14 @@ public class Remixer {
   }
 
   /**
+   * Gets the list of items.
+   */
+  public ArrayList<List<Variable>> getAllVariables() {
+    return new ArrayList<>(keyMap.values());
+  }
+
+
+  /**
    * Gets all the variables associated with {@code context}. {@code context} is expected to be
    * an Activity, it is Object here because remixer_core cannot depend on the Android SDK.
    */
@@ -202,8 +226,8 @@ public class Remixer {
   }
 
   /**
-   * Gets a list of RemixerItems for the given {@code key} from the {@code map} passed in, if such a
-   * mapping does not exist, it adds a mapping to a new empty list.
+   * Gets a list of RemixerItems for the given {@code key} from the {@code map} passed in, if such
+   * a mapping does not exist, it adds a mapping to a new empty list.
    */
   private static <T> List<Variable> getOrCreateVariableList(
       T key, Map<T, List<Variable>> map) {
@@ -238,6 +262,22 @@ public class Remixer {
         }
       }
       contextMap.remove(activity);
+    }
+  }
+
+  /**
+   * Init global setting
+   */
+  public static void initSetting(String json) {
+    globalSetting = new Gson().fromJson(json, GlobalSetting.class);
+  }
+
+  public void updateLocalThemeFile(InputStream in) {
+    if (in == null) {
+      return;
+    }
+    if (synchronizationMechanism instanceof SynchronizationMechanismAdapt) {
+      ((SynchronizationMechanismAdapt) synchronizationMechanism).onUpdateLocalFile(in);
     }
   }
 }

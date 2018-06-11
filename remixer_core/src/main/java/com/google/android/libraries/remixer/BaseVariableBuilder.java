@@ -23,12 +23,18 @@ package com.google.android.libraries.remixer;
  */
 public abstract class BaseVariableBuilder<V, T> {
   protected T initialValue;
+  protected String global;
   protected String key;
   protected String title;
   protected Object context;
   protected int layoutId = 0;
   protected Callback<T> callback;
   protected DataType dataType;
+
+  public BaseVariableBuilder<V, T> setGlobal(String global) {
+    this.global = global;
+    return this;
+  }
 
   public BaseVariableBuilder<V, T> setKey(String key) {
     this.key = key;

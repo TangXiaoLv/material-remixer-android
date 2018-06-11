@@ -37,7 +37,6 @@ public class StringVariableWidget extends RelativeLayout
 
   private TextView nameText;
   private EditText text;
-  private Variable<String> boundVariable;
 
   public StringVariableWidget(Context context) {
     super(context);
@@ -56,6 +55,12 @@ public class StringVariableWidget extends RelativeLayout
     super.onFinishInflate();
     text = (EditText) findViewById(R.id.stringVariableText);
     nameText = (TextView) findViewById(R.id.variableName);
+  }
+
+  @Override
+  public void bindVariable(@NonNull final Variable<String> variable) {
+    nameText.setText(variable.getTitle());
+    text.setText(variable.getSelectedValue());
     text.addTextChangedListener(new TextWatcher() {
 
       @Override
@@ -68,15 +73,8 @@ public class StringVariableWidget extends RelativeLayout
 
       @Override
       public void afterTextChanged(Editable s) {
-        boundVariable.setValue(s.toString());
+        variable.setValue(s.toString());
       }
     });
-  }
-
-  @Override
-  public void bindVariable(@NonNull final Variable<String> variable) {
-    boundVariable = variable;
-    nameText.setText(variable.getTitle());
-    text.setText(variable.getSelectedValue());
   }
 }

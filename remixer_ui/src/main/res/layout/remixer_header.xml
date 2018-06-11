@@ -40,7 +40,7 @@
     android:layout_height="wrap_content"
     android:layout_weight="1"
     android:padding="@dimen/defaultPadding"
-    android:text="@string/remixer_framework_name"
+    android:text="配置台"
     />
 
   <Button
@@ -48,8 +48,7 @@
     style="@style/Widget.AppCompat.Button.Borderless.Colored"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="@string/sharedStatusText"
-    android:visibility="gone"/>
+    android:text="分享"/>
 
   <ImageView
     android:id="@+id/expandSharingOptionsButton"

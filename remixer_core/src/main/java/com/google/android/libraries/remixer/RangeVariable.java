@@ -17,6 +17,7 @@
 package com.google.android.libraries.remixer;
 
 import com.google.android.libraries.remixer.serialization.StoredVariable;
+
 import java.util.Locale;
 
 /**
@@ -45,21 +46,22 @@ public class RangeVariable extends Variable<Float> {
    * Constructor that checks correctness of the range, validates {@code initialValue} and runs
    * {@code callback}.
    *
-   * @param title The name of this variable to be displayed in the UI.
-   * @param key The key to store in SharedPreferences.
+   * @param title        The name of this variable to be displayed in the UI.
+   * @param key          The key to store in SharedPreferences.
    * @param initialValue The initial value for this variable.
-   * @param minValue The minimum value for this variable.
-   * @param maxValue The maximum value for this variable.
-   * @param increment A value that defines each step. Must be a positive integer. So if you have
-   *     {@code minValue = 0 && maxValue = 12 && increment = 4}, only 0, 4, 8, 12 are possible
-   *     values.
-   * @param context the object which created this variable, should be an activity.
-   * @param callback A callback to run when successfully initialized and when the value changes. Can
-   *     be null.
-   * @param layoutId A layout id that renders this control on screen.
-   * @throws IllegalArgumentException {@code minValue > maxValue} or {@code increment < 1} or {@code
-   *     (maxValue - minValue) % increment != 0} which means the current increment setting can't
-   *     possibly get from minValue to maxValue.
+   * @param minValue     The minimum value for this variable.
+   * @param maxValue     The maximum value for this variable.
+   * @param increment    A value that defines each step. Must be a positive integer. So if you
+   *                     have {@code minValue = 0 && maxValue = 12 && increment = 4}, only 0, 4,
+   *                     8, 12 are possible values.
+   * @param context      the object which created this variable, should be an activity.
+   * @param callback     A callback to run when successfully initialized and when the value
+   *                     changes. Can be null.
+   * @param layoutId     A layout id that renders this control on screen.
+   * @throws IllegalArgumentException {@code minValue > maxValue} or {@code increment < 1} or
+   *                                  {@code (maxValue - minValue) % increment != 0} which means
+   *                                  the current increment setting can't possibly get from
+   *                                  minValue to maxValue.
    */
   private RangeVariable(
       String title,
@@ -71,7 +73,7 @@ public class RangeVariable extends Variable<Float> {
       Object context,
       Callback<Float> callback,
       int layoutId) {
-    super(title, key, initialValue, context, callback, layoutId, DataType.NUMBER);
+    super("", title, key, initialValue, context, callback, layoutId, DataType.NUMBER);
     this.minValue = minValue;
     this.maxValue = maxValue;
     this.increment = increment;
@@ -155,17 +157,14 @@ public class RangeVariable extends Variable<Float> {
    * Convenience builder for RangeVariable, the number of arguments for the constructor is too
    * large.
    *
-   * <p>This builder assumes a few things for your convenience:
-   * <ul>
-   * <li>If the initial value is not set, minValue will be used as the initial value.
-   * <li>If the increment is not set, 1 will be used.
-   * <li>If the layout id is not set, the default layout will be used.
-   * <li>If the title is not set, the key will be used as title
-   * </ul>
+   * <p>This builder assumes a few things for your convenience: <ul> <li>If the initial value is
+   * not set, minValue will be used as the initial value. <li>If the increment is not set, 1 will
+   * be used. <li>If the layout id is not set, the default layout will be used. <li>If the title
+   * is not set, the key will be used as title </ul>
    *
    * <p>On the other hand: key, minValue, maxValue, dataType, and context are mandatory. If any of
-   * these are missing or the settings are incorrect according to the logic of {@link RangeVariable}
-   * an {@link IllegalArgumentException} will be thrown.
+   * these are missing or the settings are incorrect according to the logic of {@link
+   * RangeVariable} an {@link IllegalArgumentException} will be thrown.
    */
   public static class Builder extends BaseVariableBuilder<RangeVariable, Float> {
 
@@ -193,10 +192,11 @@ public class RangeVariable extends Variable<Float> {
     }
 
     /**
-     * Returns a new RangeVariable created with the configuration stored in this builder instance.
+     * Returns a new RangeVariable created with the configuration stored in this builder
+     * instance.
      *
      * @throws IllegalArgumentException If key, minValue or maxValue are missing, or if these
-     *     settings are incorrect for {@link RangeVariable}
+     *                                  settings are incorrect for {@link RangeVariable}
      */
     public RangeVariable build() {
       if (minValue == null || maxValue == null) {

@@ -16,28 +16,45 @@
 
 package com.google.android.libraries.remixer.ui.view;
 
-import android.app.ActionBar;
+import com.google.android.libraries.remixer.GlobalType;
+import com.google.android.libraries.remixer.Remixer;
+import com.google.android.libraries.remixer.RemixerUtils;
+import com.google.android.libraries.remixer.Variable;
+import com.google.android.libraries.remixer.ui.AndroidUtils;
+import com.google.android.libraries.remixer.ui.LayoutHelper;
+import com.google.android.libraries.remixer.ui.R;
+import com.google.android.libraries.remixer.ui.gesture.Direction;
+import com.google.android.libraries.remixer.ui.gesture.GestureListener;
+import com.google.android.libraries.remixer.ui.gesture.ShakeListener;
+
+import android.content.Intent;
 import android.hardware.SensorEventListener;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.FileProvider;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import com.google.android.libraries.remixer.Remixer;
-import com.google.android.libraries.remixer.storage.FirebaseRemoteControllerSyncer;
-import com.google.android.libraries.remixer.ui.R;
-import com.google.android.libraries.remixer.ui.gesture.Direction;
-import com.google.android.libraries.remixer.ui.gesture.GestureListener;
-import com.google.android.libraries.remixer.ui.gesture.ShakeListener;
+import android.widget.TextView;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A fragment that shows all Remixes for the current activity. It's very easy to use:
@@ -58,8 +75,7 @@ import com.google.android.libraries.remixer.ui.gesture.ShakeListener;
  * </code></pre>
  */
 public class RemixerFragment
-    extends BottomSheetDialogFragment
-    implements FirebaseRemoteControllerSyncer.SharingStatusListener {
+    extends BottomSheetDialogFragment {
 
   public static final String REMIXER_TAG = "Remixer";
   // 195ms is a good time for elements leaving the screen.
@@ -72,12 +88,13 @@ public class RemixerFragment
 
   private Remixer remixer;
   private ShakeListener shakeListener;
-  private boolean isNetworkBasedSync;
   private ImageView expandSharingOptionsButton;
   private Button sharedStatusButton;
-  private RemixerAdapter adapter;
   private boolean isShowingDrawer = false;
   private RemixerShareDrawer shareDrawer;
+  private LinearLayout tags;
+  private FrameLayout lists;
+  private File shareFile;
 
   public RemixerFragment() {
     remixer = Remixer.getInstance();
@@ -109,14 +126,11 @@ public class RemixerFragment
   }
 
   /**
-   *
-   * @param manager
-   * @param tag
    * @return whether the fragment was shown or not.
    */
 
   public void showRemixer(FragmentManager manager, String tag) {
-    synchronized(syncLock) {
+    synchronized (syncLock) {
       if (!isAddingFragment && !isAdded()) {
         isAddingFragment = true;
         show(manager, tag);
@@ -125,8 +139,10 @@ public class RemixerFragment
   }
 
   // TODO(nicksahler): Generalize to attaching to any SensorEventListener
+
   /**
-   * Attach this instance to a shake gesture and show fragment when magnitude exceeds {@code threshold}
+   * Attach this instance to a shake gesture and show fragment when magnitude exceeds {@code
+   * threshold}
    */
   public void attachToShake(final FragmentActivity activity, final double threshold) {
     shakeListener = new ShakeListener(activity, threshold, this);
@@ -177,35 +193,95 @@ public class RemixerFragment
         RemixerFragment.this.getFragmentManager().beginTransaction().remove(RemixerFragment.this).commit();
       }
     });
-    RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.remixerList);
-    adapter = new RemixerAdapter(remixer.getVariablesWithContext(getActivity()));
-    recyclerView.setAdapter(adapter);
+
+    tags = view.findViewById(R.id.listTags);
+    createTag("定制", "1");
+    createTag("全局颜色", "2");
+
+    List<Variable> defVariable = new ArrayList<>();
+    List<Variable> colorsVariable = new ArrayList<>();
+    ArrayList<List<Variable>> vLists = remixer.getAllVariables();
+    for (List<Variable> list : vLists) {
+      for (Variable v : list) {
+        if (v.getKey().startsWith(GlobalType.GLOBAL_COLOR)) {
+          colorsVariable.add(v);
+        } else {
+          defVariable.add(v);
+        }
+      }
+    }
+
+    lists = view.findViewById(R.id.listContainer);
+    createList("1", defVariable);
+    createList("2", colorsVariable);
+
+    setTagsListener();
     return view;
+  }
+
+  private void setTagsListener() {
+    final int count = tags.getChildCount();
+    for (int i = 0; i < count; i++) {
+      final View view = tags.getChildAt(i);
+      view.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          for (int i = 0; i < count; i++) {
+            tags.getChildAt(i).setBackgroundColor(0xffffffff);
+          }
+          v.setBackgroundColor(getResources().getColor(R.color.variableListBackground));
+
+          String tag = (String) v.getTag();
+          int count = lists.getChildCount();
+          for (int i = 0; i < count; i++) {
+            View child = lists.getChildAt(i);
+            if (tag.equals(child.getTag())) {
+              child.setVisibility(View.VISIBLE);
+            } else {
+              child.setVisibility(View.GONE);
+            }
+          }
+        }
+      });
+    }
+    tags.getChildAt(0).performClick();
+  }
+
+  private void createTag(String title, String tag) {
+    TextView head = new TextView(getContext());
+    head.setText(title);
+    head.setTextSize(14);
+    head.setTextColor(0xff222222);
+    head.setGravity(Gravity.CENTER);
+    head.setTag(tag);
+    tags.addView(head, LayoutHelper.createLinear(0, -1, 1.0f));
+  }
+
+  private void createList(String tag, List<Variable> variables) {
+    RecyclerView recyclerView = new RecyclerView(getContext());
+    recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+    recyclerView.setPadding(
+        AndroidUtils.dp(16),
+        AndroidUtils.dp(16),
+        AndroidUtils.dp(16),
+        AndroidUtils.dp(16)
+    );
+    recyclerView.setBackgroundColor(getResources().getColor(R.color.variableListBackground));
+    RemixerAdapter adapter = new RemixerAdapter(variables);
+    recyclerView.setAdapter(adapter);
+    recyclerView.setTag(tag);
+    lists.addView(recyclerView);
   }
 
   @Override
   public void onResume() {
     isAddingFragment = false;
-    isNetworkBasedSync =
-        Remixer.getInstance().getSynchronizationMechanism()
-            instanceof FirebaseRemoteControllerSyncer;
-    if (isNetworkBasedSync) {
-      expandSharingOptionsButton.setVisibility(View.VISIBLE);
-      ((FirebaseRemoteControllerSyncer) Remixer.getInstance().getSynchronizationMechanism())
-          .addSharingStatusListener(this);
-      shareDrawer.init();
-    }
     super.onResume();
   }
 
   @Override
   public void onDetach() {
     super.onDetach();
-  }
-
-  @Override
-  public void updateSharingStatus(boolean sharing) {
-    sharedStatusButton.setVisibility(sharing ? View.VISIBLE : View.GONE);
   }
 
   public void attachToFab(final FragmentActivity activity, FloatingActionButton fab) {
@@ -221,7 +297,7 @@ public class RemixerFragment
 
     @Override
     public void onClick(View view) {
-      isShowingDrawer = !isShowingDrawer;
+      /*isShowingDrawer = !isShowingDrawer;
       if (isShowingDrawer) {
         expandSharingOptionsButton.setImageResource(R.drawable.ic_expand_less_black_24dp);
         expandSharingOptionsButton.setContentDescription(
@@ -232,6 +308,33 @@ public class RemixerFragment
         expandSharingOptionsButton.setContentDescription(
             getResources().getString(R.string.expand_sharing_options_drawer));
         collapseShareDrawer();
+      }*/
+      StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+      StrictMode.setVmPolicy(builder.build());
+      String src = "/data/data/" + getContext().getPackageName() + "/shared_prefs/remixer_local_storage.xml";
+      Intent intent = new Intent(Intent.ACTION_SEND);
+      intent.setType("text/xml");
+      shareFile = new File(getContext().getExternalCacheDir(), "theme_default.xml");
+      try {
+        RemixerUtils.copy(new File(src), shareFile);
+      } catch (Exception e) {
+        //igone
+      }
+
+      if (shareFile.exists()) {
+        if (Build.VERSION.SDK_INT >= 24) {
+          try {
+            intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(
+                getActivity(), "com.google.android.libraries.remixer.ui.provider", shareFile));
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+          } catch (Exception igone) {
+            intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(shareFile));
+            igone.printStackTrace();
+          }
+        } else {
+          intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(shareFile));
+        }
+        startActivityForResult(Intent.createChooser(intent, "分享配置文件"), 500);
       }
     }
   }
@@ -285,5 +388,14 @@ public class RemixerFragment
     };
     a.setDuration(EXPAND_DRAWER_DURATION);
     shareDrawer.startAnimation(a);
+  }
+
+  @Override
+  public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if (requestCode == 500) {
+      if (shareFile != null) {
+        shareFile.delete();
+      }
+    }
   }
 }

@@ -17,22 +17,35 @@
 package com.google.android.libraries.remixer.ui.widget;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
+import android.support.v7.app.AppCompatDialog;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.ViewUtils;
 import android.util.AttributeSet;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.google.android.libraries.remixer.ItemListVariable;
+import com.google.android.libraries.remixer.ui.AndroidUtils;
+import com.google.android.libraries.remixer.ui.CustomDialog;
+import com.google.android.libraries.remixer.ui.LayoutHelper;
 import com.google.android.libraries.remixer.ui.R;
 import com.google.android.libraries.remixer.ui.widget.color.ColorItem;
 import com.google.android.libraries.remixer.ui.widget.color.SingleColorDrawable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,6 +82,30 @@ public class ColorListVariableWidget extends LinearLayout
         new GridLayoutManager(getContext(), 1, GridLayoutManager.HORIZONTAL, false));
     nameText = (TextView) findViewById(R.id.variableName);
     recyclerView.setAdapter(adapter);
+
+    nameText.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        CustomDialog dialog = new CustomDialog(v.getContext());
+        dialog.setTitle("设置颜色：#FFFFFF");
+        dialog.setOnDialogInputListener(new CustomDialog.DialogInputListener() {
+          @Override
+          public void onInputChange(String input) {
+            int color = Color.parseColor("#" + input);
+            ColorItem colorItem = new ColorItem(color, false);
+            adapter.getValues().add(colorItem);
+
+            List<Integer> limitedToValues = adapter.getVariable().getLimitedToValues();
+            limitedToValues = new ArrayList<>(limitedToValues);
+            limitedToValues.add(color);
+            adapter.getVariable().setLimitedToValues(limitedToValues);
+
+            adapter.notifyDataSetChanged();
+          }
+        });
+        dialog.show();
+      }
+    });
   }
 
   @Override
@@ -97,16 +134,16 @@ public class ColorListVariableWidget extends LinearLayout
   @VisibleForTesting
   static class Adapter extends RecyclerView.Adapter<ViewHolder> {
 
-    Adapter() {
-      // Explicit constructor, see https://code.google.com/p/android/issues/detail?id=235661
-    }
-
     private final List<ColorItem> values = new ArrayList<>();
     private ItemListVariable<Integer> variable;
 
     @VisibleForTesting
     List<ColorItem> getValues() {
       return values;
+    }
+
+    ItemListVariable<Integer> getVariable() {
+      return variable;
     }
 
     public void setVariable(ItemListVariable<Integer> variable) {

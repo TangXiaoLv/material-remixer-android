@@ -1,0 +1,14 @@
+{
+  "colors": [
+    {
+      "title": "全局颜色",
+      "defColors": "#ff0000,#00ff00,#0000ff",
+      "type": "Primary"
+    },
+    {
+      "title": "其他颜色",
+      "defColors": "#ff0000",
+      "type": "Second"
+    }
+  ]
+}

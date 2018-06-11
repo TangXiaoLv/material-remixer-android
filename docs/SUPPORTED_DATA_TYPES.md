@@ -263,7 +263,7 @@ public void setFontSize(Integer fontSize) {
 
 ### String
 
-The String data type lets you manipulate strings.
+The Color data type lets you manipulate colors in the UI.
 
 | Name | Value |
 | ---- | ----- |

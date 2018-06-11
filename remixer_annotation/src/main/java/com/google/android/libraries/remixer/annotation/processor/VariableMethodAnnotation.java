@@ -21,9 +21,11 @@ import com.google.android.libraries.remixer.DataType;
 import com.google.android.libraries.remixer.StringVariableBuilder;
 import com.google.android.libraries.remixer.annotation.BooleanVariableMethod;
 import com.google.android.libraries.remixer.annotation.StringVariableMethod;
+
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
+
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 
@@ -79,7 +81,7 @@ class VariableMethodAnnotation<T> extends MethodAnnotation {
       int layoutId,
       T initialValue)
       throws RemixerAnnotationException {
-    super(sourceClass, sourceMethod, dataType, builderType, key, title, layoutId);
+    super(sourceClass, sourceMethod, dataType, builderType, "", key, title, layoutId);
     this.initalValue = initialValue;
   }
 

@@ -93,4 +93,14 @@
     android:src="@android:drawable/ic_menu_edit"
     app:layout_anchor="@id/transactionList"
     app:layout_anchorGravity="bottom|right|end" />
+
+  <android.support.design.widget.FloatingActionButton
+    android:id="@+id/fab_l"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom|right|end"
+    android:layout_margin="16dp"
+    android:src="@android:drawable/ic_menu_edit"
+    app:layout_anchor="@id/transactionList"
+    app:layout_anchorGravity="bottom" />
 </android.support.design.widget.CoordinatorLayout>

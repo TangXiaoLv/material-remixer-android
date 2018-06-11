@@ -17,6 +17,18 @@
 
 package com.google.android.apps.remixer;
 
+import com.google.android.apps.remixer.ui.TestActivity;
+import com.google.android.libraries.remixer.Remixer;
+import com.google.android.libraries.remixer.annotation.BooleanVariableMethod;
+import com.google.android.libraries.remixer.annotation.ColorListVariableMethod;
+import com.google.android.libraries.remixer.annotation.RangeVariableMethod;
+import com.google.android.libraries.remixer.annotation.RemixerBinder;
+import com.google.android.libraries.remixer.annotation.StringListVariableMethod;
+import com.google.android.libraries.remixer.ui.gesture.Direction;
+import com.google.android.libraries.remixer.ui.view.RemixerFragment;
+
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -26,13 +38,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
+import android.view.View;
 import android.widget.TextView;
-import com.google.android.libraries.remixer.annotation.BooleanVariableMethod;
-import com.google.android.libraries.remixer.annotation.ColorListVariableMethod;
-import com.google.android.libraries.remixer.annotation.RangeVariableMethod;
-import com.google.android.libraries.remixer.annotation.RemixerBinder;
-import com.google.android.libraries.remixer.annotation.StringListVariableMethod;
-import com.google.android.libraries.remixer.ui.view.RemixerFragment;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.text.NumberFormat;
 
 public class TransactionListActivity extends AppCompatActivity {
@@ -46,6 +56,8 @@ public class TransactionListActivity extends AppCompatActivity {
   private CollapsingToolbarLayout collapsingToolbarLayout;
   private TextView total;
   private TextView timePeriodText;
+  private FloatingActionButton fab;
+  private FloatingActionButton fab_l;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -60,13 +72,41 @@ public class TransactionListActivity extends AppCompatActivity {
     timePeriodText = (TextView) findViewById(R.id.timePeriod);
     total.setText(NumberFormat.getCurrencyInstance().format(adapter.getThisMonthTotal()));
     setSupportActionBar(toolbar);
-    RemixerBinder.bind(this);
-    FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+    fab = (FloatingActionButton) findViewById(R.id.fab);
     remixerFragment = RemixerFragment.newInstance();
     remixerFragment.attachToFab(this, fab);
+
+    remixerFragment.attachToGesture(
+        this,
+        Direction.DOWN,
+        2 /* numberOfFingers */);
+
+    RemixerBinder.bind(this);
+
+    fab_l = (FloatingActionButton) findViewById(R.id.fab_l);
+    fab_l.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        //RemixerBinder.bind(TransactionListActivity.this);
+        TestActivity.start(TransactionListActivity.this);
+      }
+    });
+    fab_l.setOnLongClickListener(new View.OnLongClickListener() {
+      @Override
+      public boolean onLongClick(View v) {
+        String path = "/data/data/" + getPackageName() + "/remixer_local_storage.xml";
+        try {
+          Remixer.getInstance().updateLocalThemeFile(new FileInputStream(path));
+        } catch (FileNotFoundException e) {
+          e.printStackTrace();
+        }
+        return true;
+      }
+    });
   }
 
   @ColorListVariableMethod(
+      global = "Primary",
       limitedToValues = {0xFF216EB3, 0xFF191919}
   )
   void setHeaderBackgroundColor(Integer color) {
@@ -77,6 +117,15 @@ public class TransactionListActivity extends AppCompatActivity {
       getWindow().setStatusBarColor(color);
       collapsingToolbarLayout.setStatusBarScrimColor(color);
     }
+  }
+
+  @ColorListVariableMethod(
+      global = "Primary",
+      limitedToValues = {0xffff0000, 0xff00ff00},
+      title = "设置fab参数"
+  )
+  void setFab(Integer color) {
+    fab.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN));
   }
 
   @BooleanVariableMethod(initialValue = true)
@@ -108,5 +157,17 @@ public class TransactionListActivity extends AppCompatActivity {
   )
   void setTotalTextSize(Float size) {
     total.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    remixerFragment.attachToShake(this, 20.0);
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+    remixerFragment.detachFromShake();
   }
 }

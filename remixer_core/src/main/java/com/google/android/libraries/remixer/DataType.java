@@ -136,10 +136,10 @@ public class DataType<RuntimeT, SerializableT> {
   }
 
   // ======= Default data types defined here.
-  private static final String KEY_BOOLEAN = "__DataTypeBoolean__";
-  private static final String KEY_COLOR = "__DataTypeColor__";
-  private static final String KEY_NUMBER = "__DataTypeNumber__";
-  private static final String KEY_STRING = "__DataTypeString__";
+  public static final String KEY_BOOLEAN = "__DataTypeBoolean__";
+  public static final String KEY_COLOR = "__DataTypeColor__";
+  public static final String KEY_NUMBER = "__DataTypeNumber__";
+  public static final String KEY_STRING = "__DataTypeString__";
 
   public static final DataType<Boolean, Boolean> BOOLEAN = new DataType<>(
       KEY_BOOLEAN, Boolean.class, Boolean.class, new BooleanValueConverter(KEY_BOOLEAN));

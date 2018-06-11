@@ -16,12 +16,18 @@
 
 package com.google.android.libraries.remixer.ui;
 
-import android.app.Application;
 import com.google.android.libraries.remixer.DataType;
 import com.google.android.libraries.remixer.ItemListVariable;
 import com.google.android.libraries.remixer.RangeVariable;
 import com.google.android.libraries.remixer.Remixer;
 import com.google.android.libraries.remixer.Variable;
+
+import android.app.Application;
+import android.util.Log;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Remixer initialization takes care of registering data types and registering activity lifecycle
@@ -29,6 +35,7 @@ import com.google.android.libraries.remixer.Variable;
  */
 public class RemixerInitialization {
 
+  private static final String TAG = "RemixerInitialization";
   private static boolean initialized;
 
   /**
@@ -45,6 +52,8 @@ public class RemixerInitialization {
     initialized = true;
     if (app != null) {
       app.registerActivityLifecycleCallbacks(RemixerActivityLifecycleCallbacks.getInstance());
+      AndroidUtils.init(app);
+      initSetting(app);
     }
 
     // Boolean values only make sense in Variables, not in ItemListVariables or Range Variables.
@@ -72,5 +81,47 @@ public class RemixerInitialization {
     DataType.STRING.setLayoutIdForVariableType(
         Variable.class, R.layout.string_variable_widget);
     Remixer.registerDataType(DataType.STRING);
+  }
+
+  private static void initSetting(Application app) {
+    try {
+      InputStream in = app.getAssets().open("remixer/setting.json");
+      Remixer.initSetting(readStreamToString(in));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private static String readStreamToString(InputStream in) {
+    if (in == null) {
+      return "";
+    }
+    ByteArrayOutputStream out = null;
+    try {
+      out = new ByteArrayOutputStream();
+      byte[] buffer = new byte[1024];
+      int length;
+      while ((length = in.read(buffer)) != -1) {
+        out.write(buffer, 0, length);
+      }
+      return out.toString("UTF-8");
+    } catch (Exception e) {
+      Log.e(TAG, "readStreamToString fail.", e);
+    } finally {
+      try {
+        in.close();
+      } catch (IOException e) {
+        Log.e(TAG, "readStreamToString fail.", e);
+      }
+
+      try {
+        if (out != null) {
+          out.close();
+        }
+      } catch (IOException e) {
+        Log.e(TAG, "readStreamToString fail.", e);
+      }
+    }
+    return "";
   }
 }

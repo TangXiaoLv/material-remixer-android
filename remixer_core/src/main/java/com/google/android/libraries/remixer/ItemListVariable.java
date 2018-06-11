@@ -17,6 +17,7 @@
 package com.google.android.libraries.remixer;
 
 import com.google.android.libraries.remixer.serialization.StoredVariable;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,22 +28,23 @@ import java.util.List;
  */
 public class ItemListVariable<T> extends Variable<T> {
 
-  private final List<T> limitedToValues;
+  private List<T> limitedToValues;
 
   /**
-   * Creates a new ItemListVariable, checks its initial value and runs the callback if the value is
-   * valid.
+   * Creates a new ItemListVariable, checks its initial value and runs the callback if the value
+   * is valid.
    *
-   * @param title Displayable name for this Variable.
-   * @param key The key used to store this Variable.
-   * @param initialValue The initial value to use if none has been set.
+   * @param title           Displayable name for this Variable.
+   * @param key             The key used to store this Variable.
+   * @param initialValue    The initial value to use if none has been set.
    * @param limitedToValues List of valid values that this variable is limited to take.
-   * @param context the object which created this variable, should be an activity.
-   * @param callback Callback to run once the value is set. Can be null.
-   * @param layoutId A layout id that renders this control on screen.
-   * @param dataType The data type this variable contains.
+   * @param context         the object which created this variable, should be an activity.
+   * @param callback        Callback to run once the value is set. Can be null.
+   * @param layoutId        A layout id that renders this control on screen.
+   * @param dataType        The data type this variable contains.
    */
   private ItemListVariable(
+      String global,
       String title,
       String key,
       T initialValue,
@@ -51,7 +53,7 @@ public class ItemListVariable<T> extends Variable<T> {
       Callback<T> callback,
       int layoutId,
       DataType dataType) {
-    super(title, key, initialValue, context, callback, layoutId, dataType);
+    super(global, title, key, initialValue, context, callback, layoutId, dataType);
     this.limitedToValues = limitedToValues;
   }
 
@@ -67,6 +69,10 @@ public class ItemListVariable<T> extends Variable<T> {
     return limitedToValues;
   }
 
+  public void setLimitedToValues(List<T> values) {
+    limitedToValues = values;
+  }
+
   /**
    * Gets the serializable constraints string for this variable.
    */
@@ -79,10 +85,10 @@ public class ItemListVariable<T> extends Variable<T> {
    *
    * <p>This builder assumes a few things for your convenience:
    * <ul>
-   *   <li>If the initial value is not set, the first value of the list will be used as the default
-   *   value.
-   *   <li>If the layout id is not set, the default layout will be used.
-   *   <li>If the title is not set, the key will be used as title
+   * <li>If the initial value is not set, the first value of the list will be used as the default
+   * value.
+   * <li>If the layout id is not set, the default layout will be used.
+   * <li>If the title is not set, the key will be used as title
    * </ul>
    *
    * <p>On the other hand: key, dataType, context, and limitedToValues are mandatory. If either is
@@ -107,7 +113,7 @@ public class ItemListVariable<T> extends Variable<T> {
      * instance.
      *
      * @throws IllegalArgumentException If key or limitedToValues are missing or if the
-     *     configuration is invalid for ItemListVariable.
+     *                                  configuration is invalid for ItemListVariable.
      */
     @Override
     public ItemListVariable<T> build() {
@@ -120,7 +126,7 @@ public class ItemListVariable<T> extends Variable<T> {
         initialValue = limitedToValues.get(0);
       }
       ItemListVariable<T> variable = new ItemListVariable<T>(
-          title, key, initialValue, limitedToValues, context, callback, layoutId, dataType);
+          global, title, key, initialValue, limitedToValues, context, callback, layoutId, dataType);
       variable.init();
       return variable;
     }

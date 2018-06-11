@@ -17,6 +17,7 @@
 package com.google.android.libraries.remixer;
 
 import com.google.android.libraries.remixer.serialization.StoredVariable;
+
 import java.lang.ref.WeakReference;
 
 /**
@@ -26,6 +27,8 @@ import java.lang.ref.WeakReference;
  * <p><b>This class is not thread-safe and should only be used from the main thread.</b>
  */
 public class Variable<T> {
+
+  private String global = "";
 
   /**
    * The name to display in the UI for this variable.
@@ -65,16 +68,17 @@ public class Variable<T> {
   /**
    * Creates a new Variable.
    *
-   * @param key The key to use to save to SharedPreferences. This needs to be unique across all
-   *     Remixes.
-   * @param title The name to display in the UI.
+   * @param key          The key to use to save to SharedPreferences. This needs to be unique
+   *                     across all Remixes.
+   * @param title        The name to display in the UI.
    * @param initialValue The initial value for this Variable.
-   * @param context the object which created this variable, should be an activity.
-   * @param callback A callback to execute when the value is updated. Can be {@code null}.
-   * @param layoutId A layout to inflate when displaying this Variable in the UI.
-   * @param dataType The data type this variable contains.
+   * @param context      the object which created this variable, should be an activity.
+   * @param callback     A callback to execute when the value is updated. Can be {@code null}.
+   * @param layoutId     A layout to inflate when displaying this Variable in the UI.
+   * @param dataType     The data type this variable contains.
    */
   protected Variable(
+      String global,
       String title,
       String key,
       T initialValue,
@@ -82,6 +86,7 @@ public class Variable<T> {
       Callback<T> callback,
       int layoutId,
       DataType dataType) {
+    this.global = global;
     this.title = title;
     this.key = key;
     this.context = new WeakReference<>(context);
@@ -92,11 +97,11 @@ public class Variable<T> {
   }
 
   /**
-   * Makes sure the initial value is valid for this variable and runs the callback if so. This must
-   * be called as soon as the Variable is created.
+   * Makes sure the initial value is valid for this variable and runs the callback if so. This
+   * must be called as soon as the Variable is created.
    *
-   * @throws IllegalArgumentException The currently selected value (or initial value) is invalid for
-   *     this Variable. See {@link #checkValue(Object)}.
+   * @throws IllegalArgumentException The currently selected value (or initial value) is invalid
+   *                                  for this Variable. See {@link #checkValue(Object)}.
    */
   public final void init() {
     checkValue(selectedValue);
@@ -105,6 +110,10 @@ public class Variable<T> {
 
   public DataType getDataType() {
     return dataType;
+  }
+
+  public String getGlobal() {
+    return global;
   }
 
   public String getTitle() {
@@ -135,6 +144,10 @@ public class Variable<T> {
    */
   public void setRemixer(Remixer remixer) {
     this.remixer = remixer;
+  }
+
+  public boolean isDestroy() {
+    return context.get() == null;
   }
 
   /**
@@ -177,7 +190,7 @@ public class Variable<T> {
    * @throws IllegalArgumentException {@code newValue} is an invalid value for this Variable.
    */
   public void setValueWithoutNotifyingOthers(T newValue) {
-    checkValue(newValue);
+    //checkValue(newValue);
     selectedValue = newValue;
     runCallback();
   }
@@ -225,11 +238,12 @@ public class Variable<T> {
     public Variable<T> build() {
       checkBaseFields();
       Variable<T> variable =
-          new Variable<T>(title, key, initialValue, context, callback, layoutId, dataType);
+          new Variable<T>(global, title, key, initialValue, context, callback, layoutId, dataType);
       variable.init();
       return variable;
     }
 
-    public Builder() {}
+    public Builder() {
+    }
   }
 }

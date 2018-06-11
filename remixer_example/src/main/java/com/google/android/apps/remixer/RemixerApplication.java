@@ -17,9 +17,9 @@
 package com.google.android.apps.remixer;
 
 import android.app.Application;
+
 import com.google.android.libraries.remixer.Remixer;
-import com.google.android.libraries.remixer.storage.FirebaseRemoteControllerSyncer;
-import com.google.android.libraries.remixer.storage.LocalStorage;
+import com.google.android.libraries.remixer.storage.FileStorage;
 import com.google.android.libraries.remixer.ui.RemixerInitialization;
 
 /**
@@ -40,11 +40,7 @@ public class RemixerApplication extends Application {
   public void onCreate() {
     super.onCreate();
     RemixerInitialization.initRemixer(this);
-    if (USE_FIREBASE_REMOTE_CONTROLLER) {
-      FirebaseRemoteControllerSyncer syncer = new FirebaseRemoteControllerSyncer(this);
-      Remixer.getInstance().setSynchronizationMechanism(syncer);
-    } else {
-      Remixer.getInstance().setSynchronizationMechanism(new LocalStorage(this));
-    }
+    //Remixer.getInstance().setSynchronizationMechanism(new LocalStorage(this));
+    Remixer.getInstance().setSynchronizationMechanism(new FileStorage(this));
   }
 }

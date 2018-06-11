@@ -18,6 +18,7 @@ package com.google.android.libraries.remixer.serialization;
 
 import com.google.android.libraries.remixer.IncompatibleRemixerItemsWithSameKeyException;
 import com.google.android.libraries.remixer.Variable;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -35,14 +36,14 @@ public class SerializableRemixerContents {
   /**
    * Mapping from variable key to the variable's representation in Serializable format.
    *
-   * <p>Notice that while {@link com.google.android.libraries.remixer.Remixer#keyMap} contains more
-   * than one item per key, all of those items contain the same data (same value for variables), so
-   * we only keep one of them here.
+   * <p>Notice that while {@link com.google.android.libraries.remixer.Remixer#keyMap} contains
+   * more than one item per key, all of those items contain the same data (same value for
+   * variables), so we only keep one of them here.
    *
    * <p>This is never used for anything other than storage and syncing. It is meant as a
    * serializable copy of {@link com.google.android.libraries.remixer.Remixer}. When adding
-   * variables, the value should be synced to whatever is already stored here, or copied here if it
-   * does not exist.
+   * variables, the value should be synced to whatever is already stored here, or copied here if
+   * it does not exist.
    */
   private Map<String, StoredVariable> keyToDataMap;
 
@@ -80,6 +81,10 @@ public class SerializableRemixerContents {
     }
     // If it is already there and compatible we need to do nothing here. The syncing mechanism needs
     // to sync the value across different instances though.
+  }
+
+  public void updateItem(StoredVariable item) {
+    keyToDataMap.put(item.key, item);
   }
 
   public Set<String> keySet() {
@@ -122,13 +127,13 @@ public class SerializableRemixerContents {
   }
 
   /**
-   * Sets the value for the StoredVariable with key {@code storedVariable.key}. Must be called only
-   * after calling {@link #addItem(Variable)} or {@link #addItem(StoredVariable)} for a variable
-   * with this key.
+   * Sets the value for the StoredVariable with key {@code storedVariable.key}. Must be called
+   * only after calling {@link #addItem(Variable)} or {@link #addItem(StoredVariable)} for a
+   * variable with this key.
    */
   public void setValue(StoredVariable storedVariable) {
     StoredVariable existingStoredVariable = keyToDataMap.get(storedVariable.key);
-    if (!existingStoredVariable.isCompatibleWith(storedVariable)) {
+    /*if (!existingStoredVariable.isCompatibleWith(storedVariable)) {
       throw new IncompatibleRemixerItemsWithSameKeyException(
           String.format(
               Locale.getDefault(),
@@ -137,7 +142,7 @@ public class SerializableRemixerContents {
               storedVariable.key,
               existingStoredVariable.dataType,
               storedVariable.dataType));
-    }
+    }*/
     existingStoredVariable.selectedValue = storedVariable.selectedValue;
   }
 }

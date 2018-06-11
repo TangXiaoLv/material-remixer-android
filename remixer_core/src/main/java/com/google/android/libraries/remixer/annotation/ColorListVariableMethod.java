@@ -35,6 +35,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 public @interface ColorListVariableMethod {
 
+  String global() default "";
+
   /**
    * The key for the variable, may be left empty and the method name will be used instead.
    *

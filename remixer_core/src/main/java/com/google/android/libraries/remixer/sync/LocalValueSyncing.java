@@ -16,17 +16,22 @@
 
 package com.google.android.libraries.remixer.sync;
 
+import com.google.android.libraries.remixer.GlobalType;
 import com.google.android.libraries.remixer.Remixer;
+import com.google.android.libraries.remixer.RemixerUtils;
 import com.google.android.libraries.remixer.Variable;
 import com.google.android.libraries.remixer.serialization.SerializableRemixerContents;
 import com.google.android.libraries.remixer.serialization.StoredVariable;
+
 import java.util.List;
+
+import static com.google.android.libraries.remixer.DataType.KEY_COLOR;
 
 /**
  * A purely-local implementation of a Synchronization Mechanism. This handles keeping values in sync
  * locally.
  */
-public class LocalValueSyncing implements SynchronizationMechanism {
+public class LocalValueSyncing extends SynchronizationMechanismAdapt {
 
   protected SerializableRemixerContents serializableRemixerContents =
       new SerializableRemixerContents();
@@ -43,6 +48,12 @@ public class LocalValueSyncing implements SynchronizationMechanism {
     serializableRemixerContents.addItem(variable);
     StoredVariable storedVariable = serializableRemixerContents.getItem(variable.getKey());
     // Check the value for updates.
+    if (RemixerUtils.equals(KEY_COLOR, storedVariable.getDataType())) {
+      StoredVariable global = serializableRemixerContents.getItem(GlobalType.GLOBAL_COLOR + variable.getGlobal());
+      if (global != null) {
+        storedVariable = global;
+      }
+    }
     variable.setValueWithoutNotifyingOthers(
         variable.getDataType().getConverter().toRuntimeType(storedVariable.getSelectedValue()));
   }
