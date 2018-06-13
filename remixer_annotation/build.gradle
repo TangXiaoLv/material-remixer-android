@@ -24,33 +24,28 @@ apply plugin: 'jacoco'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
-jacocoTestReport {
+/*jacocoTestReport {
   reports {
     xml.enabled true
   }
-}
-
-repositories {
-  mavenCentral()
-}
+}*/
 
 // This is required to run tests that depend on test resources.
-task copyTestResources(type: Copy) {
+/*task copyTestResources(type: Copy) {
   from "${projectDir}/src/test/resources"
   into "${buildDir}/classes/test"
 }
-processTestResources.dependsOn copyTestResources
+processTestResources.dependsOn copyTestResources*/
 
 dependencies {
-  compile 'com.google.guava:guava:19.0'
-  compile 'com.google.auto:auto-common:0.6'
-  compile 'com.google.auto.service:auto-service:1.0-rc2'
-  compile 'com.squareup:javapoet:1.7.0'
-  compile project(':remixer_core')
-
-  testCompile files(Jvm.current().getToolsJar())
-  testRuntime files(Jvm.current().getToolsJar())
-  testCompile 'com.google.testing.compile:compile-testing:0.7'
-  testCompile "com.google.truth:truth:0.28"
+  implementation 'com.google.guava:guava:20.0'
+  implementation 'com.google.auto:auto-common:0.6'
+  implementation 'com.google.auto.service:auto-service:1.0-rc2'
+  implementation 'com.squareup:javapoet:1.7.0'
+  implementation project(':remixer_core')
+  implementation 'com.google.testing.compile:compile-testing:0.7'
+  testCompile 'com.google.truth:truth:0.28'
   testCompile 'junit:junit:4.12'
 }
+
+//apply from: rootProject.file('gradle/gradle-jcenter-push.gradle')

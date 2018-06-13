@@ -22,15 +22,15 @@ import android.support.v4.app.FragmentManager;
 import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.View;
-import com.google.android.libraries.remixer.ui.view.RemixerFragment;
+import com.google.android.libraries.remixer.ui.view.RemixerTargetBinder;
 
 /**
  * A Gesture Listener that expects multi-finger swipes in a direction to trigger the display of a
- * RemixerFragment.
+ * RemixerTargetBinder.
  *
  * <p>It is configurable, allowing you to set the number of fingers (two or more), and the direction
  * of the swipe. It can be set up by calling {@link #attach(FragmentActivity, Direction, int,
- * RemixerFragment)} or {@link RemixerFragment#attachToGesture(FragmentActivity, Direction, int)}.
+ * RemixerTargetBinder)} or {@link RemixerTargetBinder#attachToGesture(FragmentActivity, Direction, int)}.
  */
 public class GestureListener implements View.OnTouchListener {
 
@@ -39,7 +39,7 @@ public class GestureListener implements View.OnTouchListener {
    */
   private static final int THRESHOLD = 100;
   /**
-   * The FragmentManager for the activity, it is used to show the RemixerFragment.
+   * The FragmentManager for the activity, it is used to show the RemixerTargetBinder.
    */
   private final FragmentManager fragmentManager;
   /**
@@ -53,7 +53,7 @@ public class GestureListener implements View.OnTouchListener {
   /**
    * The remixer fragment to show once the swipe succeeds.
    */
-  private final RemixerFragment remixerFragment;
+  private final RemixerTargetBinder remixerTargetBinder;
 
   /**
    * Map of all the fingers that are currently touching the screen.
@@ -62,30 +62,30 @@ public class GestureListener implements View.OnTouchListener {
 
   /**
    * Attaches a GestureListener to {@code activity} that watches for swipes in the direction {@code
-   * direction} with at least {@code numberOfFingers} and shows {@code remixerFragment} when found.
+   * direction} with at least {@code numberOfFingers} and shows {@code remixerTargetBinder} when found.
    */
   public static void attach(
       FragmentActivity activity,
       Direction direction,
       int numberOfFingers,
-      RemixerFragment remixerFragment) {
+      RemixerTargetBinder remixerTargetBinder) {
     activity.findViewById(android.R.id.content).setOnTouchListener(
         new GestureListener(
-            direction, numberOfFingers, activity.getSupportFragmentManager(), remixerFragment));
+            direction, numberOfFingers, activity.getSupportFragmentManager(), remixerTargetBinder));
   }
 
   private GestureListener(
       Direction direction,
       int numberOfFingers,
       FragmentManager fragmentManager,
-      RemixerFragment remixerFragment) {
+      RemixerTargetBinder remixerTargetBinder) {
     if (numberOfFingers < 2) {
       throw new IllegalArgumentException("GestureListener requires at least 2 fingers");
     }
     this.direction = direction;
     this.numberOfFingers = numberOfFingers;
     this.fragmentManager = fragmentManager;
-    this.remixerFragment = remixerFragment;
+    this.remixerTargetBinder = remixerTargetBinder;
   }
 
   @Override
@@ -122,7 +122,7 @@ public class GestureListener implements View.OnTouchListener {
           }
         }
         if (correctlySwiped) {
-          remixerFragment.showRemixer(fragmentManager, RemixerFragment.REMIXER_TAG);
+          remixerTargetBinder.showRemixer(fragmentManager, RemixerTargetBinder.REMIXER_TAG);
         }
         // fall-through
       case MotionEvent.ACTION_CANCEL:

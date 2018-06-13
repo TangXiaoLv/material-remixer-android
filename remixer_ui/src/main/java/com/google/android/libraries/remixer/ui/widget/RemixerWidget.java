@@ -19,12 +19,12 @@ package com.google.android.libraries.remixer.ui.widget;
 import android.support.annotation.Keep;
 import android.support.annotation.NonNull;
 import com.google.android.libraries.remixer.Variable;
-import com.google.android.libraries.remixer.ui.view.RemixerFragment;
+import com.google.android.libraries.remixer.ui.view.RemixerTargetBinder;
 
 /**
  * An interface that all remixer widgets must implement.
  *
- * <p>This lets the {@link RemixerFragment} bind them to a {@link Variable} when they are
+ * <p>This lets the {@link RemixerTargetBinder} bind them to a {@link Variable} when they are
  * inflated.
  */
 @Keep

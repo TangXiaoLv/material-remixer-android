@@ -20,6 +20,7 @@ import com.google.android.libraries.remixer.GlobalType;
 import com.google.android.libraries.remixer.Remixer;
 import com.google.android.libraries.remixer.RemixerUtils;
 import com.google.android.libraries.remixer.Variable;
+import com.google.android.libraries.remixer.annotation.RemixerBinder;
 import com.google.android.libraries.remixer.ui.AndroidUtils;
 import com.google.android.libraries.remixer.ui.LayoutHelper;
 import com.google.android.libraries.remixer.ui.R;
@@ -27,6 +28,8 @@ import com.google.android.libraries.remixer.ui.gesture.Direction;
 import com.google.android.libraries.remixer.ui.gesture.GestureListener;
 import com.google.android.libraries.remixer.ui.gesture.ShakeListener;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.SensorEventListener;
 import android.net.Uri;
@@ -35,6 +38,7 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.FileProvider;
@@ -46,7 +50,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -65,7 +68,7 @@ import java.util.List;
  *
  *   protected void onCreate(Bundle savedInstanceState) {
  *     // ...
- *     RemixerFragment remixerFragment = RemixerFragment.newInstance();
+ *     RemixerTargetBinder remixerFragment = RemixerTargetBinder.newInstance();
  *     // Attach it to a button.
  *     remixerFragment.attachToButton(this, button);
  *     // Have remixer show up on 3 finger swipe up.
@@ -74,8 +77,7 @@ import java.util.List;
  * }
  * </code></pre>
  */
-public class RemixerFragment
-    extends BottomSheetDialogFragment {
+public class RemixerTargetBinder extends BottomSheetDialogFragment {
 
   public static final String REMIXER_TAG = "Remixer";
   // 195ms is a good time for elements leaving the screen.
@@ -88,20 +90,18 @@ public class RemixerFragment
 
   private Remixer remixer;
   private ShakeListener shakeListener;
-  private ImageView expandSharingOptionsButton;
-  private Button sharedStatusButton;
-  private boolean isShowingDrawer = false;
   private RemixerShareDrawer shareDrawer;
   private LinearLayout tags;
   private FrameLayout lists;
   private File shareFile;
+  private Object target;
 
-  public RemixerFragment() {
+  public RemixerTargetBinder() {
     remixer = Remixer.getInstance();
   }
 
-  public static RemixerFragment newInstance() {
-    return new RemixerFragment();
+  public static RemixerTargetBinder newInstance() {
+    return new RemixerTargetBinder();
   }
 
   private boolean isAddingFragment = false;
@@ -115,7 +115,8 @@ public class RemixerFragment
    *
    * <p><b>Notice this will replace the button's OnClickListener</b>
    */
-  public void attachToButton(final FragmentActivity activity, Button button) {
+  private void attachToButton(final FragmentActivity activity, View button) {
+    target = activity;
     button.setOnClickListener(new View.OnClickListener() {
 
       @Override
@@ -125,10 +126,20 @@ public class RemixerFragment
     });
   }
 
+  private void attachToView(android.app.Fragment fragment, View button) {
+    target = fragment;
+//    button.setOnClickListener(new View.OnClickListener() {
+//
+//      @Override
+//      public void onClick(View view) {
+//        showRemixer(activity.getSupportFragmentManager(), REMIXER_TAG);
+//      }
+//    });
+  }
+
   /**
    * @return whether the fragment was shown or not.
    */
-
   public void showRemixer(FragmentManager manager, String tag) {
     synchronized (syncLock) {
       if (!isAddingFragment && !isAdded()) {
@@ -144,7 +155,7 @@ public class RemixerFragment
    * Attach this instance to a shake gesture and show fragment when magnitude exceeds {@code
    * threshold}
    */
-  public void attachToShake(final FragmentActivity activity, final double threshold) {
+  private void attachToShake(final FragmentActivity activity, final double threshold) {
     shakeListener = new ShakeListener(activity, threshold, this);
     shakeListener.attach();
   }
@@ -164,7 +175,7 @@ public class RemixerFragment
    *
    * <p><b>Notice this will replace the activity's root view's OnTouchListener</b>
    */
-  public void attachToGesture(
+  private void attachToGesture(
       FragmentActivity activity, Direction direction, int numberOfFingers) {
     GestureListener.attach(activity, direction, numberOfFingers, this);
   }
@@ -179,18 +190,13 @@ public class RemixerFragment
                            ViewGroup container,
                            Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_remixer_list, container, false);
-    ImageView closeButton = (ImageView) view.findViewById(R.id.closeButton);
-    shareDrawer = (RemixerShareDrawer) view.findViewById(R.id.shareDrawer);
-    isShowingDrawer = false;
-    ShareDrawerOnClickListener listener = new ShareDrawerOnClickListener();
-    expandSharingOptionsButton = (ImageView) view.findViewById(R.id.expandSharingOptionsButton);
-    sharedStatusButton = (Button) view.findViewById(R.id.sharedStatusButton);
-    expandSharingOptionsButton.setOnClickListener(listener);
-    sharedStatusButton.setOnClickListener(listener);
+    ImageView closeButton = view.findViewById(R.id.closeButton);
+    shareDrawer = view.findViewById(R.id.shareDrawer);
+    view.findViewById(R.id.sharedStatusButton).setOnClickListener(new ShareOnClickListener());
     closeButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        RemixerFragment.this.getFragmentManager().beginTransaction().remove(RemixerFragment.this).commit();
+        RemixerTargetBinder.this.getFragmentManager().beginTransaction().remove(RemixerTargetBinder.this).commit();
       }
     });
 
@@ -199,14 +205,17 @@ public class RemixerFragment
     createTag("全局颜色", "2");
 
     List<Variable> defVariable = new ArrayList<>();
+    List<Variable> variablesWithContext = remixer.getVariablesWithContext(target);
+    if (variablesWithContext != null) {
+      defVariable.addAll(variablesWithContext);
+    }
+
     List<Variable> colorsVariable = new ArrayList<>();
     ArrayList<List<Variable>> vLists = remixer.getAllVariables();
     for (List<Variable> list : vLists) {
       for (Variable v : list) {
         if (v.getKey().startsWith(GlobalType.GLOBAL_COLOR)) {
           colorsVariable.add(v);
-        } else {
-          defVariable.add(v);
         }
       }
     }
@@ -284,7 +293,7 @@ public class RemixerFragment
     super.onDetach();
   }
 
-  public void attachToFab(final FragmentActivity activity, FloatingActionButton fab) {
+  private void attachToFab(final FragmentActivity activity, FloatingActionButton fab) {
     fab.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -293,30 +302,54 @@ public class RemixerFragment
     });
   }
 
-  private class ShareDrawerOnClickListener implements View.OnClickListener {
+  public static <T> void bind(T target) {
+    RemixerBinder.bind(target);
+    if (target instanceof FragmentActivity) {
+      FrameLayout content = ((FragmentActivity) target).findViewById(android.R.id.content);
+      View button = createButton(content.getContext());
+      content.addView(button);
+      newInstance().attachToButton((FragmentActivity) target, button);
+    } else if (target instanceof Fragment) {
+      FragmentActivity activity = ((Fragment) target).getActivity();
+      if (activity != null) {
+        FrameLayout content = activity.findViewById(android.R.id.content);
+        View button = createButton(content.getContext());
+        content.addView(button);
+        newInstance().attachToButton(activity, button);
+      }
+    } else if (target instanceof android.app.Fragment) {
+      //不支持老版本Fragment
+    }
+  }
+
+  private static View createButton(Context context) {
+    ImageView button = new ImageView(context);
+    button.setImageResource(R.drawable.ic_done_black_24);
+    button.setBackgroundColor(0xFFFF4081);
+    button.setScaleType(ImageView.ScaleType.CENTER_CROP);
+    button.setLayoutParams(LayoutHelper.createFrame(48, 48,
+        Gravity.BOTTOM | Gravity.END, 0, 0, 32, 40));
+    return button;
+  }
+
+  private class ShareOnClickListener implements View.OnClickListener {
 
     @Override
+    @SuppressWarnings("all")
     public void onClick(View view) {
-      /*isShowingDrawer = !isShowingDrawer;
-      if (isShowingDrawer) {
-        expandSharingOptionsButton.setImageResource(R.drawable.ic_expand_less_black_24dp);
-        expandSharingOptionsButton.setContentDescription(
-            getResources().getString(R.string.collapse_sharing_options_drawer));
-        expandShareDrawer();
-      } else {
-        expandSharingOptionsButton.setImageResource(R.drawable.ic_expand_more_black_24dp);
-        expandSharingOptionsButton.setContentDescription(
-            getResources().getString(R.string.expand_sharing_options_drawer));
-        collapseShareDrawer();
-      }*/
       StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
       StrictMode.setVmPolicy(builder.build());
-      String src = "/data/data/" + getContext().getPackageName() + "/shared_prefs/remixer_local_storage.xml";
       Intent intent = new Intent(Intent.ACTION_SEND);
       intent.setType("text/xml");
-      shareFile = new File(getContext().getExternalCacheDir(), "theme_default.xml");
       try {
-        RemixerUtils.copy(new File(src), shareFile);
+        String src = "/data/data/" + getContext().getPackageName() + "/shared_prefs/remixer_local_storage.xml";
+        File srcFile = new File(src);
+        if (!srcFile.exists()) {
+          src = "/data/data/" + getContext().getPackageName() + "/shared_prefs/remixer_theme_default.xml";
+          srcFile = new File(src);
+        }
+        shareFile = new File(getContext().getExternalCacheDir(), "remixer_theme_default.xml");
+        RemixerUtils.copy(srcFile, shareFile);
       } catch (Exception e) {
         //igone
       }
@@ -359,6 +392,7 @@ public class RemixerFragment
         return true;
       }
     };
+
     a.setDuration(COLLAPSE_DRAWER_DURATION);
     shareDrawer.startAnimation(a);
   }

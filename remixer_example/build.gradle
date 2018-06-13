@@ -15,7 +15,7 @@
  */
 
 apply plugin: 'com.android.application'
-apply plugin: 'android-apt'
+//apply plugin: 'android-apt'
 
 android {
   compileSdkVersion rootProject.ext.compileSdkVersion
@@ -49,8 +49,8 @@ android {
 }
 
 dependencies {
-  compile "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
-  compile project(':remixer')
-  provided project(':remixer_annotation')
-  compile project(':remixer_ui')
+  implementation "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
+  implementation project(':remixer')
+  implementation project(':remixer_annotation')
+  implementation project(':remixer_ui')
 }

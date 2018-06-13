@@ -16,16 +16,16 @@
 
 /**
  * Contains the code to display the
- * {@link com.google.android.libraries.remixer.ui.view.RemixerFragment}.
+ * {@link com.google.android.libraries.remixer.ui.view.RemixerTargetBinder}.
  *
- * <p>You should only need to instantiate it and push it to the FragmentManager, but RemixerFragment
+ * <p>You should only need to instantiate it and push it to the FragmentManager, but RemixerTargetBinder
  * has two convenience methods to set it up:
  * <ul>
- * <li>{@link com.google.android.libraries.remixer.ui.view.RemixerFragment#attachToGesture(
+ * <li>{@link com.google.android.libraries.remixer.ui.view.RemixerTargetBinder#attachToGesture(
  *     android.support.v4.app.FragmentActivity,
  *     com.google.android.libraries.remixer.ui.gesture.Direction, int)} which sets a gesture to
  *     show the fragment, and...
- * <li>{@link com.google.android.libraries.remixer.ui.view.RemixerFragment#
+ * <li>{@link com.google.android.libraries.remixer.ui.view.RemixerTargetBinder#
  *     attachToButton(android.support.v4.app.FragmentActivity, android.widget.Button)} which shows
  *     the fragment on a button click.
  * </ul>

@@ -22,10 +22,9 @@ import com.google.android.libraries.remixer.Remixer;
 import com.google.android.libraries.remixer.annotation.BooleanVariableMethod;
 import com.google.android.libraries.remixer.annotation.ColorListVariableMethod;
 import com.google.android.libraries.remixer.annotation.RangeVariableMethod;
-import com.google.android.libraries.remixer.annotation.RemixerBinder;
 import com.google.android.libraries.remixer.annotation.StringListVariableMethod;
 import com.google.android.libraries.remixer.ui.gesture.Direction;
-import com.google.android.libraries.remixer.ui.view.RemixerFragment;
+import com.google.android.libraries.remixer.ui.view.RemixerTargetBinder;
 
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -52,7 +51,7 @@ public class TransactionListActivity extends AppCompatActivity {
   private Toolbar toolbar;
   private TransactionAdapter adapter;
   private RecyclerView list;
-  private RemixerFragment remixerFragment;
+  private RemixerTargetBinder remixerTargetBinder;
   private CollapsingToolbarLayout collapsingToolbarLayout;
   private TextView total;
   private TextView timePeriodText;
@@ -73,15 +72,8 @@ public class TransactionListActivity extends AppCompatActivity {
     total.setText(NumberFormat.getCurrencyInstance().format(adapter.getThisMonthTotal()));
     setSupportActionBar(toolbar);
     fab = (FloatingActionButton) findViewById(R.id.fab);
-    remixerFragment = RemixerFragment.newInstance();
-    remixerFragment.attachToFab(this, fab);
 
-    remixerFragment.attachToGesture(
-        this,
-        Direction.DOWN,
-        2 /* numberOfFingers */);
-
-    RemixerBinder.bind(this);
+    RemixerTargetBinder.bind(this);
 
     fab_l = (FloatingActionButton) findViewById(R.id.fab_l);
     fab_l.setOnClickListener(new View.OnClickListener() {
@@ -162,12 +154,10 @@ public class TransactionListActivity extends AppCompatActivity {
   @Override
   protected void onResume() {
     super.onResume();
-    remixerFragment.attachToShake(this, 20.0);
   }
 
   @Override
   protected void onPause() {
     super.onPause();
-    remixerFragment.detachFromShake();
   }
 }

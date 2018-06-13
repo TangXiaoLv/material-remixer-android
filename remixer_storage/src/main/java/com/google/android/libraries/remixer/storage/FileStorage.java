@@ -155,9 +155,11 @@ public class FileStorage extends LocalValueSyncing {
 
   @Override
   public void onAddingVariable(Variable variable) {
+    boolean isAdded = serializableRemixerContents.getItem(variable.getKey()) != null;
     super.onAddingVariable(variable);
-    writeVariable(variable.getKey());
-    //TODO 非配置模式，关闭读写
+    if (!isAdded) {
+      writeVariable(variable.getKey());
+    }
   }
 
   @Override

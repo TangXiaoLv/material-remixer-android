@@ -16,35 +16,26 @@
 
 package com.google.android.libraries.remixer.ui.widget;
 
-import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
-import android.support.v7.app.AppCompatDialog;
-import android.support.v7.widget.AppCompatTextView;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.ViewUtils;
-import android.util.AttributeSet;
-import android.util.TypedValue;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
 import com.google.android.libraries.remixer.ItemListVariable;
-import com.google.android.libraries.remixer.ui.AndroidUtils;
 import com.google.android.libraries.remixer.ui.CustomDialog;
-import com.google.android.libraries.remixer.ui.LayoutHelper;
 import com.google.android.libraries.remixer.ui.R;
 import com.google.android.libraries.remixer.ui.widget.color.ColorItem;
 import com.google.android.libraries.remixer.ui.widget.color.SingleColorDrawable;
+
+import android.content.Context;
+import android.graphics.Color;
+import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;

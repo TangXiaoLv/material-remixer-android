@@ -15,26 +15,35 @@
  * limitations under the License.
  */
 
-apply plugin: "checkstyle"
-
 buildscript {
   repositories {
+    maven { url uri('./repo') }
     jcenter()
     mavenCentral()
+    maven {
+      url 'https://maven.google.com/'
+      name 'Google'
+    }
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:2.3.3'
-    classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
-    classpath 'com.google.gms:google-services:3.0.0'
-    classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
-    classpath 'com.vanniktech:gradle-android-junit-jacoco-plugin:0.5.0'
+    classpath 'com.android.tools.build:gradle:3.0.1'
+//    classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+//    classpath 'com.vanniktech:gradle-android-junit-jacoco-plugin:0.5.0'
+
+    classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+    classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
   }
 }
 
 allprojects {
   repositories {
-	  jcenter()
+    jcenter()
+    mavenCentral()
+    maven {
+      url 'https://maven.google.com/'
+      name 'Google'
+    }
   }
 }
 
@@ -52,7 +61,7 @@ subprojects {
     classpathForJavadoc = null
   }
 
-  afterEvaluate { project ->
+  /*afterEvaluate { project ->
     if (project.name != ":remixer") {
       // Create the sourceset and classpath variables.
       if (project.hasProperty('android')) {
@@ -67,7 +76,7 @@ subprojects {
         }
       }
     }
-  }
+  }*/
 
 }
 

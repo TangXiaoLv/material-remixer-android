@@ -67,6 +67,7 @@ public class RemixerBinder {
       @SuppressWarnings("unchecked")
       Binder<T> binder = (Binder<T>) bindingClass.newInstance();
       binder.bindInstance(target);
+
     } catch (ClassNotFoundException ex) {
       throw new RemixerBindingException(
           "Remixer binder class can not be found or initialized for "

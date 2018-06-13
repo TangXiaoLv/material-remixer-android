@@ -25,7 +25,7 @@
   android:layout_height="wrap_content"
   android:orientation="vertical"
   android:theme="@style/RemixerTheme"
-  tools:context="com.google.android.libraries.remixer.ui.view.RemixerFragment">
+  tools:context="com.google.android.libraries.remixer.ui.view.RemixerTargetBinder">
 
   <include
     android:id="@+id/remixerHeader"

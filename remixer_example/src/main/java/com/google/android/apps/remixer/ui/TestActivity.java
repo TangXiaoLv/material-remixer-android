@@ -1,10 +1,8 @@
 package com.google.android.apps.remixer.ui;
 
 import com.google.android.apps.remixer.TransactionListActivity;
-import com.google.android.libraries.remixer.Remixer;
 import com.google.android.libraries.remixer.annotation.ColorListVariableMethod;
-import com.google.android.libraries.remixer.annotation.RemixerBinder;
-import com.google.android.libraries.remixer.ui.view.RemixerFragment;
+import com.google.android.libraries.remixer.ui.view.RemixerTargetBinder;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -31,9 +29,7 @@ public class TestActivity extends FragmentActivity {
     textView.setGravity(Gravity.CENTER);
     frameLayout.addView(textView, new FrameLayout.LayoutParams(-1, -2));
 
-    RemixerBinder.bind(this);
-
-    RemixerFragment.newInstance().attachToShake(this, 20.0);
+    RemixerTargetBinder.bind(this);
 
     textView.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -56,14 +52,11 @@ public class TestActivity extends FragmentActivity {
   @Override
   protected void onResume() {
     super.onResume();
-    RemixerFragment remixerFragment = RemixerFragment.newInstance();
-    remixerFragment.attachToShake(this, 20.0);
   }
 
   @Override
   protected void onPause() {
     super.onPause();
-    Remixer.getInstance().onActivityDestroyed(this);
   }
 
   public static void start(TransactionListActivity activity) {

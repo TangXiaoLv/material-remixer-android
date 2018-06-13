@@ -23,24 +23,25 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.v4.app.FragmentActivity;
 
-import com.google.android.libraries.remixer.ui.view.RemixerFragment;
+import com.google.android.libraries.remixer.ui.view.RemixerTargetBinder;
+
 /**
  * A Gesture Listener that listens for magnitude of 3D acceleration to exceed a given threshold, triggering the display of a
- * RemixerFragment.
+ * RemixerTargetBinder.
  *
- * <p>It can be set up by calling {@link #attach(FragmentActivity, double threshold, RemixerFragment)}
+ * <p>It can be set up by calling {@link #attach(FragmentActivity, double threshold, RemixerTargetBinder)}
  */
 public class ShakeListener implements SensorEventListener {
     private double lastMagnitude;
 
     private double threshold;
     private final FragmentActivity activity;
-    private RemixerFragment remixerFragment;
+    private RemixerTargetBinder remixerTargetBinder;
 
-    public ShakeListener(final FragmentActivity activity, final double threshold, RemixerFragment remixerFragment) {
+    public ShakeListener(final FragmentActivity activity, final double threshold, RemixerTargetBinder remixerTargetBinder) {
       this.activity = activity;
       this.threshold = threshold;
-      this.remixerFragment = remixerFragment;
+      this.remixerTargetBinder = remixerTargetBinder;
     }
 
     @Override
@@ -51,7 +52,7 @@ public class ShakeListener implements SensorEventListener {
           + event.values[2] * event.values[2]);
 
       if ((currentMagnitude - lastMagnitude) > threshold ) {
-        remixerFragment.showRemixer(activity.getSupportFragmentManager(), RemixerFragment.REMIXER_TAG);
+        remixerTargetBinder.showRemixer(activity.getSupportFragmentManager(), RemixerTargetBinder.REMIXER_TAG);
       }
 
       this.lastMagnitude = currentMagnitude;
@@ -62,7 +63,7 @@ public class ShakeListener implements SensorEventListener {
 
     /**
      * Attaches a ShakeListener to {@code activity} that listens for acceleration change that exceeds {@code threshold}
-     * and shows {@code remixerFragment} when satisfied.
+     * and shows {@code remixerTargetBinder} when satisfied.
      */
     public void attach() {
       SensorManager sensorManager = (SensorManager) activity.getSystemService(Context.SENSOR_SERVICE);

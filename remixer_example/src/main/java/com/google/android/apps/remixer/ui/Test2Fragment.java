@@ -1,9 +1,8 @@
 package com.google.android.apps.remixer.ui;
 
 import com.google.android.libraries.remixer.annotation.ColorListVariableMethod;
-import com.google.android.libraries.remixer.annotation.RemixerBinder;
 import com.google.android.libraries.remixer.ui.LayoutHelper;
-import com.google.android.libraries.remixer.ui.view.RemixerFragment;
+import com.google.android.libraries.remixer.ui.view.RemixerTargetBinder;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -34,10 +33,9 @@ public class Test2Fragment extends Fragment {
       AppCompatButton button = new AppCompatButton(getContext());
       button.setTextSize(18);
       button.setText("配置台");
-      frameLayout.addView(button, LayoutHelper.createLinear(-1, -2));
+      //frameLayout.addView(button, LayoutHelper.createLinear(-1, -2));
 
-      RemixerBinder.bind(this);
-      RemixerFragment.newInstance().attachToButton(getActivity(), button);
+      RemixerTargetBinder.bind(this);
       return frameLayout;
     }
 

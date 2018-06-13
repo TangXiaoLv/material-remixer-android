@@ -15,9 +15,9 @@
  */
 
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
+//apply plugin: 'com.github.dcendents.android-maven'
 
-group = 'com.github.material-foundation'
+//group = 'com.github.material-foundation'
 
 /* While this library is no longer used directly (since it makes proguard fail), we keep it mostly
  * for javadoc aggregation (:allJavadoc and :javadocJar). This allows jitpack to automatically
@@ -51,12 +51,12 @@ android {
 }
 
 dependencies {
-  compile project(':remixer_core')
-  compile project(':remixer_storage')
-  compile project(':remixer_ui')
+  implementation project(':remixer_core')
+  implementation project(':remixer_storage')
+  implementation project(':remixer_ui')
 }
 
-def javadocProjects = [
+/*def javadocProjects = [
   ":remixer_core",
   ":remixer_annotation",
   ":remixer_ui",
@@ -92,5 +92,5 @@ task javadocJar(type: Jar, dependsOn: allJavadoc) {
 artifacts {
   archives sourcesJar
   archives javadocJar
-}
+}*/
 
